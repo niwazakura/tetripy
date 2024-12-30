@@ -1,0 +1,36 @@
+keyboard:
+  func:
+    exit:
+      - 'Escape'
+      - 'Escape'
+  base:
+    harddrop:
+      - 'Backspace'
+      - 'Delete'
+    softdrop:
+      - 'Space'
+      - 'Return'
+    left:
+      - 'Left'
+      - 'Left'
+    right:
+      - 'Right'
+      - 'Right'
+    up:
+      - 'Up'
+      - 'Up'
+    down:
+      - 'Down'
+      - 'Down'
+    rotate:
+      left: 'Z'
+      right: 'X'
+    hold: 'C'
+  
+time:
+  lock_delay: 1
+  
+
+rotate system:1 # SRS 1 TRS 2 
+
+
