@@ -13,6 +13,20 @@ MOVE_LEFT = (-1, 0)
 MOVE_RIGHT = (1, 0)
 MOVE_DOWN = (0, 1)
 
+def draw_text_middle(surface, text, size, color):
+    font = pygame.font.SysFont("comicsans", size, bold=True)
+    label = font.render(text, 1, color)
+    surface.blit(label, (top_left_x + play_width / 2 - (label.get_width() / 2), top_left_y + play_height / 2 - label.get_height() / 2))
+
+top_left_x = (s_width - play_width) // 2
+top_left_y = s_height - play_height
+
+s_width = 800
+s_height = 700
+play_width = 300  # meaning 300 // 10 = 30 width per block
+play_height = 600  # meaning 600 // 20 = 30 height per block
+
+
 class TetrisGame:
     def __init__(self):
         self.root = tk.Tk()
@@ -195,11 +209,12 @@ class TetrisGame:
 
 if __name__ == "__main__":
     pygame.init()
+    pygame.font.init()
     # pygame.mixer.init()
     # pygame.mixer_music.load("https://cdn.freesound.org/previews/779/779827_5674468-lq.mp3")
     # pygame.mixer.music.set_volume(0.3)
     # pygame.mixer .music.play(-1)
-    win = pygame.display.set_mode((WIDTH * BLOCK_SIZE, HEIGHT * BLOCK_SIZE))
+    win = pygame.display.set_mode((s_width, HEIGHT * s_height))
     pygame.display.set_caption('Tetris')
     win.fill((0,0,0))
     draw_text_middle(win, 'Press Any Key To Play', 60, (255,255,255))
