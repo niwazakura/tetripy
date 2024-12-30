@@ -53,8 +53,8 @@ class TetrisGame(tk.Tk):
         self.hard_drop_speed = 50  # 硬降速度（单位：毫秒）
 
         # 启动游戏
-        self.update_display()
-        self.spawn_block()
+        self.spawn_block()  # 生成一个新方块
+        self.update_display()  # 更新显示
         self.after(self.gravity_speed, self.drop_block)  # 每500毫秒下落一次
 
     def spawn_block(self):
