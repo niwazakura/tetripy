@@ -19,7 +19,7 @@ MOVE_RIGHT = (1, 0)
 MOVE_DOWN = (0, 1)
 
 def draw_text_middle(surface, text, size, color):
-    font = pygame.font.SysFont("comicsans", size, bold=True)
+    font = pygame.font.SysFont("sans", size, bold=True)
     label = font.render(text, 1, color)
     surface.blit(label, (top_left_x + play_width / 2 - (label.get_width() / 2), top_left_y + play_height / 2 - label.get_height() / 2))
 
@@ -130,7 +130,7 @@ class TetrisGame:
                 self.field.insert(0, [0] * self.width)
 
             self.score += LINE_CLEAR_SCORE[len(lines_to_clear)]
-            self.root.title("SCORES: %s"  % self.score)
+            self.root.title("SCORES:%s"  % self.score)
         
         self.update_display()
 
