@@ -149,7 +149,7 @@ class TetrisGame(tk.Tk):
                 if cell:
                     x = self.block['x'] + c
                     y = self.block['y'] + r
-                    self.field[y][x] = 1
+                    self.field[y][x] = self.block['color']  # 锁定方块颜色
         self.update_display()
 
     def clear_lines(self):
@@ -192,7 +192,7 @@ class TetrisGame(tk.Tk):
             for col in range(self.width):
                 x = col * self.block_size
                 y = row * self.block_size
-                color = 'gray' if self.field[row][col] == 0 else 'blue'
+                color = self.field[row][col] if self.field[row][col] != 0 else 'gray'
                 self.canvas.create_rectangle(x, y, x + self.block_size, y + self.block_size, fill=color, outline='black')
 
         # 绘制当前方块
@@ -229,7 +229,7 @@ class TetrisGame(tk.Tk):
         elif event.keysym == ROTATE_CCW:
             self.rotate_block_ccw()
         elif event.keysym == 'space':
-            self.hard_drop()  # 按空格键硬降
+            self.hard_drop()
 
     def rotate_block_cw(self):
         """顺时针旋转方块"""
@@ -260,12 +260,13 @@ class TetrisGame(tk.Tk):
                         return False
         return True
 
+
 if __name__ == "__main__":
     game = TetrisGame()
-    game.bind("<Left>", game.on_key_press)  # 左移
-    game.bind("<Right>", game.on_key_press)  # 右移
-    game.bind("<Down>", game.on_key_press)  # 加速下落
-    game.bind("<Up>", game.on_key_press)  # 顺时针旋转
-    game.bind("<z>", game.on_key_press)  # 逆时针旋转
-    game.bind("<space>", game.on_key_press)  # 空格键硬降
+    game.bind("<Left>", game.on_key_press)
+    game.bind("<Right>", game.on_key_press)
+    game.bind("<Down>", game.on_key_press)
+    game.bind("<Up>", game.on_key_press)
+    game.bind("<z>", game.on_key_press)
+    game.bind("<space>", game.on_key_press)
     game.mainloop()
