@@ -6,8 +6,18 @@ WIDTH, HEIGHT = 10, 20  # 场地宽10，场地高20
 BLOCK_SIZE = 30  # 方块大小
 FIELD_COLOR = 'black'
 GRID_COLOR = 'gray'
-BLOCK_COLORS = ['cyan', 'blue', 'orange', 'yellow', 'green', 'red', 'purple']
 LINE_CLEAR_SCORE = {1: 100, 2: 300, 3: 500, 4: 800}  # 消行得分规则
+
+# 形状和颜色绑定
+BLOCKS = [
+    {'shape': [['0000', '1111', '0000', '0000']], 'color': 'cyan'},  # I
+    {'shape': [['0110', '1110', '0000', '0000']], 'color': 'blue'},  # J
+    {'shape': [['1100', '1110', '0000', '0000']], 'color': 'orange'},  # L
+    {'shape': [['1100', '1100']], 'color': 'yellow'},  # O
+    {'shape': [['0110', '1110']], 'color': 'green'},  # S
+    {'shape': [['1100', '0110']], 'color': 'red'},  # Z
+    {'shape': [['0100', '1110', '0000', '0000']], 'color': 'purple'},  # T
+]
 
 class TetrisGame:
     def __init__(self, master):
@@ -50,7 +60,7 @@ class TetrisGame:
         for r in range(HEIGHT):
             for c in range(WIDTH):
                 if self.field[r][c]:
-                    color = BLOCK_COLORS[self.field[r][c] - 1]
+                    color = BLOCKS[self.field[r][c] - 1]['color']
                     x1, y1 = c * BLOCK_SIZE, r * BLOCK_SIZE
                     x2, y2 = x1 + BLOCK_SIZE, y1 + BLOCK_SIZE
                     self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline=FIELD_COLOR)
@@ -69,25 +79,15 @@ class TetrisGame:
         self.canvas.create_text(10, 10, text=f"Score: {self.score}", anchor=tk.NW, fill='white', font=('Arial', 16))
 
     def new_block(self):
-        shapes = [
-            [['0000', '1111', '0000', '0000']],  # I
-            [['0110', '1110', '0000', '0000']],  # J
-            [['1100', '1110', '0000', '0000']],  # L
-            [['1100', '1100']],  # O
-            [['0110', '1110']],  # S
-            [['1100', '0110']],  # Z
-            [['0100', '1110', '0000', '0000']]  # T
-        ]
+        # 从BLOCKS中随机选择形状和颜色
+        block = random.choice(BLOCKS)
         self.current_block = {
-            'shape': random.choice(shapes),
-            'color': random.choice(BLOCK_COLORS),
+            'shape': block['shape'],
+            'color': block['color'],
             'x': WIDTH // 2 - 2,
             'y': 0,
         }
-        self.next_block = {
-            'shape': random.choice(shapes),
-            'color': random.choice(BLOCK_COLORS)
-        }
+        self.next_block = random.choice(BLOCKS)
 
     def fall(self):
         if not self.game_over:
@@ -118,7 +118,7 @@ class TetrisGame:
                 if cell:
                     x = self.current_block['x'] + c
                     y = self.current_block['y'] + r
-                    self.field[y][x] = BLOCK_COLORS.index(self.current_block['color']) + 1
+                    self.field[y][x] = BLOCKS.index({'shape': self.current_block['shape'], 'color': self.current_block['color']}) + 1
 
         self.clear_lines()
 
