@@ -45,6 +45,8 @@ class TetrisGame:
         self.width = WIDTH
         self.height = HEIGHT
         self.field = [[0] * self.width for _ in range(self.height)]
+        self.block_size = 30  # 每个方块的大小
+
         
         # 当前方块
         self.current_block = None
