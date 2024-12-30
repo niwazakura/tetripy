@@ -17,13 +17,13 @@ LINE_CLEAR_SCORE = {
 
 # 方块形状及其颜色
 BLOCK_SHAPES = [
-    [['1111']],  # I型
-    [['11', '11']],  # O型
-    [['010', '111']],  # T型
-    [['110', '011']],  # L型
-    [['011', '110']],  # J型
-    [['011', '110']],  # Z型
-    [['110', '010']]   # S型
+    [['1', '1', '1', '1']],  # I型
+    [['1', '1'], ['1', '1']],  # O型
+    [['0', '1', '0'], ['1', '1', '1']],  # T型
+    [['1', '1', '0'], ['0', '1', '1']],  # L型
+    [['0', '1', '1'], ['1', '1', '0']],  # Z型
+    [['1', '1', '0'], ['1', '0', '0']],  # S型
+    [['1', '0', '0'], ['1', '1', '1']],  # J型
 ]
 
 BLOCK_COLORS = ['cyan', 'yellow', 'purple', 'orange', 'blue', 'green', 'red']
@@ -163,102 +163,44 @@ class TetrisGame(tk.Tk):
         for line in lines_to_clear:
             self.field.pop(line)
             self.field.insert(0, [0] * self.width)  # 在顶部插入空行
-
-        # 更新得分
-        num_lines = len(lines_to_clear)
-        if num_lines > 0:
-            self.score += LINE_CLEAR_SCORE[num_lines]
+            self.score += LINE_CLEAR_SCORE[len(lines_to_clear)]
+        
         self.update_display()
 
+    def update_display(self):
+        """更新画布显示"""
+        self.canvas.delete('all')  # 清除之前的画布内容
+
+        # 绘制场地
+        for y, row in enumerate(self.field):
+            for x, cell in enumerate(row):
+                if cell != 0:
+                    self.canvas.create_rectangle(x * self.block_size, y * self.block_size,
+                                                 (x + 1) * self.block_size, (y + 1) * self.block_size,
+                                                 fill=cell, outline='black')
+
+        # 绘制当前方块
+        for r, row in enumerate(self.block['shape']):
+            for c, cell in enumerate(row):
+                if cell:
+                    x = (self.block['x'] + c) * self.block_size
+                    y = (self.block['y'] + r) * self.block_size
+                    self.canvas.create_rectangle(x, y, x + self.block_size, y + self.block_size,
+                                                 fill=self.block['color'], outline='black')
+
     def check_game_over(self):
-        """检查游戏是否结束"""
+        """检查是否游戏结束"""
         for c in range(self.width):
             if self.field[0][c] != 0:
                 return True
         return False
 
     def game_over(self):
-        """游戏结束"""
+        """结束游戏"""
         self.game_over_flag = True
-        self.canvas.create_text(self.width * self.block_size // 2, self.height * self.block_size // 2,
-                                text="Game Over", fill="white", font=('Arial', 24))
-
-    def update_display(self):
-        """更新显示"""
-        self.canvas.delete('all')
-
-        # 绘制场地
-        for row in range(self.height):
-            for col in range(self.width):
-                x = col * self.block_size
-                y = row * self.block_size
-                color = self.field[row][col] if self.field[row][col] != 0 else 'gray'
-                self.canvas.create_rectangle(x, y, x + self.block_size, y + self.block_size, fill=color, outline='black')
-
-        # 绘制当前方块
-        if self.block:
-            self.render_block(self.block)
-
-        # 绘制得分
-        self.canvas.create_text(10, 10, text=f"Score: {self.score}", fill="white", anchor='nw')
-
-    def render_block(self, block):
-        """渲染当前方块"""
-        shape = block['shape']
-        color = block['color']
-        for r, row in enumerate(shape):
-            for c, cell in enumerate(row):
-                if cell:
-                    x = (block['x'] + c) * self.block_size
-                    y = (block['y'] + r) * self.block_size
-                    self.canvas.create_rectangle(x, y, x + self.block_size, y + self.block_size, fill=color, outline='black')
-
-    def on_key_press(self, event):
-        """响应键盘事件"""
-        if self.game_over_flag:
-            return
-
-        if event.keysym == MOVE_LEFT:
-            self.move_block(MOVE_LEFT)
-        elif event.keysym == MOVE_RIGHT:
-            self.move_block(MOVE_RIGHT)
-        elif event.keysym == MOVE_DOWN:
-            self.move_block(MOVE_DOWN)
-        elif event.keysym == ROTATE_CW:
-            self.rotate_block_cw()
-        elif event.keysym == ROTATE_CCW:
-            self.rotate_block_ccw()
-        elif event.keysym == 'space':
-            self.hard_drop()
-
-    def rotate_block_cw(self):
-        """顺时针旋转方块"""
-        if self.game_over_flag:
-            return
-        new_shape = list(zip(*self.block['shape'][::-1]))
-        if self.can_rotate(new_shape):
-            self.block['shape'] = new_shape
-            self.update_display()
-
-    def rotate_block_ccw(self):
-        """逆时针旋转方块"""
-        if self.game_over_flag:
-            return
-        new_shape = [list(row) for row in zip(*self.block['shape'])][::-1]
-        if self.can_rotate(new_shape):
-            self.block['shape'] = new_shape
-            self.update_display()
-
-    def can_rotate(self, new_shape):
-        """检查方块是否可以旋转"""
-        for r, row in enumerate(new_shape):
-            for c, cell in enumerate(row):
-                if cell:
-                    x = self.block['x'] + c
-                    y = self.block['y'] + r
-                    if x < 0 or x >= self.width or y < 0 or y >= self.height or self.field[y][x] != 0:
-                        return False
-        return True
+        self.canvas.create_text(self.width * self.block_size // 2,
+                                self.height * self.block_size // 2,
+                                text="GAME OVER", fill="white", font=("Arial", 24))
 
 
 if __name__ == "__main__":
