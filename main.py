@@ -1,214 +1,179 @@
 import tkinter as tk
 import random
 
-# 游戏常量
-MOVE_LEFT = 'Left'
-MOVE_RIGHT = 'Right'
-MOVE_DOWN = 'Down'
-ROTATE_CW = 'Up'
-ROTATE_CCW = 'z'
-
-LINE_CLEAR_SCORE = {
-    1: 100,
-    2: 300,
-    3: 500,
-    4: 800
-}
-
-# 方块形状及其颜色
-BLOCK_SHAPES = [
-    [['1', '1', '1', '1']],  # I型
-    [['1', '1'], ['1', '1']],  # O型
-    [['0', '1', '0'], ['1', '1', '1']],  # T型
-    [['1', '1', '0'], ['0', '1', '1']],  # L型
-    [['0', '1', '1'], ['1', '1', '0']],  # Z型
-    [['1', '1', '0'], ['1', '0', '0']],  # S型
-    [['1', '0', '0'], ['1', '1', '1']],  # J型
+# 定义方块的形状和颜色
+BLOCKS = [
+    {'shape': [[1, 1, 1, 1]], 'color': 'cyan'},  # I形
+    {'shape': [[1, 1], [1, 1]], 'color': 'yellow'},  # O形
+    {'shape': [[1, 1, 0], [0, 1, 1]], 'color': 'green'},  # S形
+    {'shape': [[0, 1, 1], [1, 1, 0]], 'color': 'red'},  # Z形
+    {'shape': [[1, 1, 1], [0, 1, 0]], 'color': 'blue'},  # T形
+    {'shape': [[1, 0, 0], [1, 1, 1]], 'color': 'orange'},  # L形
+    {'shape': [[0, 0, 1], [1, 1, 1]], 'color': 'purple'}  # J形
 ]
 
-BLOCK_COLORS = ['cyan', 'yellow', 'purple', 'orange', 'blue', 'green', 'red']
+# 游戏设置
+MOVE_LEFT = 'left'
+MOVE_RIGHT = 'right'
+MOVE_DOWN = 'down'
+MOVE_ROTATE = 'rotate'
 
-def generate_block():
-    """生成一个新的随机方块"""
-    shape = random.choice(BLOCK_SHAPES)
-    color = BLOCK_COLORS[BLOCK_SHAPES.index(shape)]
-    return {'shape': shape, 'color': color, 'x': 0, 'y': 0}
+LINE_CLEAR_SCORE = {1: 40, 2: 100, 3: 300, 4: 1200}  # 消除行的分数
+
 
 class TetrisGame(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title('Tetris')
+        self.title("Tetris")
         self.canvas = tk.Canvas(self, width=300, height=600, bg='black')
         self.canvas.pack()
 
-        # 游戏区参数
-        self.width = 10  # 游戏区宽度
-        self.height = 20  # 游戏区高度
-        self.block_size = 30  # 每个方块的大小
-        self.field = [[0] * self.width for _ in range(self.height)]  # 初始化空场地
-        self.block = None  # 当前方块
-        self.score = 0  # 游戏得分
-        self.game_over_flag = False  # 游戏结束标志
-        self.gravity_speed = 500  # 下落速度（单位：毫秒）
-        self.hard_drop_speed = 50  # 硬降速度（单位：毫秒）
+        # 游戏初始化
+        self.width = 10
+        self.height = 20
+        self.block_size = 30
+        self.field = [[0] * self.width for _ in range(self.height)]
+        self.score = 0
+        self.game_over_flag = False
+        self.current_block = None
+        self.next_block = None
 
         # 启动游戏
-        self.spawn_block()  # 生成一个新方块
-        self.update_display()  # 更新显示
-        self.after(self.gravity_speed, self.drop_block)  # 每500毫秒下落一次
+        self.spawn_new_block()
+        self.update_display()
 
-    def spawn_block(self):
-        """生成一个新的方块"""
-        self.block = generate_block()
-        self.block['x'] = self.width // 2 - len(self.block['shape'][0]) // 2
-        self.block['y'] = 0
+        # 设置下落速度
+        self.after(500, self.drop_block)
 
-    def drop_block(self):
-        """控制方块的自动下落"""
-        if not self.game_over_flag:
-            if not self.move_block(MOVE_DOWN):
-                self.lock_block()
-                self.clear_lines()
-                self.spawn_block()  # 生成新的方块
-                if self.check_game_over():
-                    self.game_over()
-                else:
-                    self.update_display()
-            self.after(self.gravity_speed, self.drop_block)  # 继续下落
+    def spawn_new_block(self):
+        """生成新方块"""
+        self.current_block = self.next_block or random.choice(BLOCKS)
+        self.next_block = random.choice(BLOCKS)
+        self.current_block['x'] = self.width // 2 - len(self.current_block['shape'][0]) // 2
+        self.current_block['y'] = 0
 
-    def move_block(self, direction):
-        """移动当前方块"""
-        if direction == MOVE_DOWN:
-            if self.can_move_down():
-                self.block['y'] += 1
-                self.update_display()
-                return True
-            else:
-                return False
-        elif direction == MOVE_LEFT:
-            if self.can_move_left():
-                self.block['x'] -= 1
-                self.update_display()
-                return True
-        elif direction == MOVE_RIGHT:
-            if self.can_move_right():
-                self.block['x'] += 1
-                self.update_display()
-                return True
-        return False
+    def update_display(self):
+        """更新画布显示"""
+        self.canvas.delete('all')
 
-    def hard_drop(self):
-        """硬降：将方块迅速下落到底"""
-        while self.move_block(MOVE_DOWN):
-            pass
-        self.lock_block()
-        self.clear_lines()
-        self.spawn_block()  # 生成新的方块
-        if self.check_game_over():
-            self.game_over()
+        # 绘制场地
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.field[y][x] != 0:
+                    self.canvas.create_rectangle(x * self.block_size, y * self.block_size,
+                                                 (x + 1) * self.block_size, (y + 1) * self.block_size,
+                                                 fill=self.field[y][x], outline='black')
+
+        # 绘制当前方块
+        for r, row in enumerate(self.current_block['shape']):
+            for c, cell in enumerate(row):
+                if cell:
+                    x = (self.current_block['x'] + c) * self.block_size
+                    y = (self.current_block['y'] + r) * self.block_size
+                    self.canvas.create_rectangle(x, y, x + self.block_size, y + self.block_size,
+                                                 fill=self.current_block['color'], outline='black')
+
+        # 更新分数
+        self.title(f"Tetris - Score: {self.score}")
+
+    def can_move(self, direction):
+        """检查方块是否可以移动"""
+        for r, row in enumerate(self.current_block['shape']):
+            for c, cell in enumerate(row):
+                if cell:
+                    x = self.current_block['x'] + c
+                    y = self.current_block['y'] + r
+                    if direction == MOVE_LEFT:
+                        if x <= 0 or self.field[y][x - 1] != 0:
+                            return False
+                    elif direction == MOVE_RIGHT:
+                        if x >= self.width - 1 or self.field[y][x + 1] != 0:
+                            return False
+                    elif direction == MOVE_DOWN:
+                        if y >= self.height - 1 or self.field[y + 1][x] != 0:
+                            return False
+        return True
+
+    def rotate_block(self):
+        """旋转方块"""
+        rotated_shape = [list(row) for row in zip(*self.current_block['shape'][::-1])]
+        original_shape = self.current_block['shape']
+        self.current_block['shape'] = rotated_shape
+
+        if not self.can_move(MOVE_LEFT) and not self.can_move(MOVE_RIGHT):
+            self.current_block['shape'] = original_shape  # 恢复旋转前的状态
         else:
             self.update_display()
 
-    def can_move_down(self):
-        """检查方块是否可以向下移动"""
-        for r, row in enumerate(self.block['shape']):
-            for c, cell in enumerate(row):
-                if cell:
-                    x = self.block['x'] + c
-                    y = self.block['y'] + r + 1
-                    if y >= self.height or self.field[y][x] != 0:
-                        return False
-        return True
-
-    def can_move_left(self):
-        """检查方块是否可以向左移动"""
-        for r, row in enumerate(self.block['shape']):
-            for c, cell in enumerate(row):
-                if cell:
-                    x = self.block['x'] + c - 1
-                    y = self.block['y'] + r
-                    if x < 0 or self.field[y][x] != 0:
-                        return False
-        return True
-
-    def can_move_right(self):
-        """检查方块是否可以向右移动"""
-        for r, row in enumerate(self.block['shape']):
-            for c, cell in enumerate(row):
-                if cell:
-                    x = self.block['x'] + c + 1
-                    y = self.block['y'] + r
-                    if x >= self.width or self.field[y][x] != 0:
-                        return False
-        return True
-
     def lock_block(self):
-        """将当前方块锁定到场地上"""
-        for r, row in enumerate(self.block['shape']):
+        """锁定方块并生成新方块"""
+        for r, row in enumerate(self.current_block['shape']):
             for c, cell in enumerate(row):
                 if cell:
-                    x = self.block['x'] + c
-                    y = self.block['y'] + r
-                    self.field[y][x] = self.block['color']  # 锁定方块颜色
-        self.update_display()
+                    x = self.current_block['x'] + c
+                    y = self.current_block['y'] + r
+                    self.field[y][x] = self.current_block['color']
+        self.clear_lines()
+        self.spawn_new_block()
 
     def clear_lines(self):
-        """检查并消除满行"""
+        """清除满行并计算分数"""
         lines_to_clear = []
         for i, row in enumerate(self.field):
             if all(cell != 0 for cell in row):
                 lines_to_clear.append(i)
 
-        # 处理消除行
         for line in lines_to_clear:
             self.field.pop(line)
-            self.field.insert(0, [0] * self.width)  # 在顶部插入空行
-            self.score += LINE_CLEAR_SCORE[len(lines_to_clear)]
-        
-        self.update_display()
+            self.field.insert(0, [0] * self.width)
 
-    def update_display(self):
-        """更新画布显示"""
-        self.canvas.delete('all')  # 清除之前的画布内容
+        self.score += LINE_CLEAR_SCORE[len(lines_to_clear)]
 
-        # 绘制场地
-        for y, row in enumerate(self.field):
-            for x, cell in enumerate(row):
-                if cell != 0:
-                    self.canvas.create_rectangle(x * self.block_size, y * self.block_size,
-                                                 (x + 1) * self.block_size, (y + 1) * self.block_size,
-                                                 fill=cell, outline='black')
+    def drop_block(self):
+        """控制方块下落"""
+        if not self.game_over_flag:
+            if self.can_move(MOVE_DOWN):
+                self.current_block['y'] += 1
+            else:
+                self.lock_block()
 
-        # 绘制当前方块
-        for r, row in enumerate(self.block['shape']):
-            for c, cell in enumerate(row):
-                if cell:
-                    x = (self.block['x'] + c) * self.block_size
-                    y = (self.block['y'] + r) * self.block_size
-                    self.canvas.create_rectangle(x, y, x + self.block_size, y + self.block_size,
-                                                 fill=self.block['color'], outline='black')
-
-    def check_game_over(self):
-        """检查是否游戏结束"""
-        for c in range(self.width):
-            if self.field[0][c] != 0:
-                return True
-        return False
+            self.update_display()
+            if not self.game_over_flag:
+                self.after(500, self.drop_block)
 
     def game_over(self):
-        """结束游戏"""
+        """游戏结束"""
         self.game_over_flag = True
-        self.canvas.create_text(self.width * self.block_size // 2,
-                                self.height * self.block_size // 2,
-                                text="GAME OVER", fill="white", font=("Arial", 24))
+        self.canvas.create_text(self.width * self.block_size // 2, self.height * self.block_size // 2,
+                                text="Game Over", fill="red", font=('Arial', 24))
 
+    def on_key_press(self, event):
+        """按键事件处理"""
+        if self.game_over_flag:
+            return
 
-if __name__ == "__main__":
+        if event.keysym == 'Left':
+            if self.can_move(MOVE_LEFT):
+                self.current_block['x'] -= 1
+            self.update_display()
+        elif event.keysym == 'Right':
+            if self.can_move(MOVE_RIGHT):
+                self.current_block['x'] += 1
+            self.update_display()
+        elif event.keysym == 'Down':
+            if self.can_move(MOVE_DOWN):
+                self.current_block['y'] += 1
+            self.update_display()
+        elif event.keysym == 'Up':
+            self.rotate_block()
+        elif event.keysym == 'space':
+            self.drop_block()
+
+if __name__ == '__main__':
     game = TetrisGame()
     game.bind("<Left>", game.on_key_press)
     game.bind("<Right>", game.on_key_press)
     game.bind("<Down>", game.on_key_press)
     game.bind("<Up>", game.on_key_press)
-    game.bind("<z>", game.on_key_press)
     game.bind("<space>", game.on_key_press)
     game.mainloop()
