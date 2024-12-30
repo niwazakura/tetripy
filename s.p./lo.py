@@ -1,0 +1,1 @@
+https://github.com/BigShuang/Tetris/blob/master/1_BASIC/005.py
