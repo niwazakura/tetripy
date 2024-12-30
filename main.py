@@ -111,6 +111,7 @@ class TetrisGame:
                 self.field.insert(0, [0] * self.width)
 
             self.score += LINE_CLEAR_SCORE[len(lines_to_clear)]
+            self.root.title("Tetris Game：SCORES: %s"  % self.score)
         
         self.update_display()
 
@@ -197,7 +198,7 @@ if __name__ == "__main__":
     pygame.mixer.init()
 
 
-    pygame.mixer_music.load(r"C:\Users\ASUS\Desktop\Ray J - She Freaky.mp3")
+    pygame.mixer_music.load(https://cdn.freesound.org/previews/779/779827_5674468-lq.mp3)
     pygame.mixer.music.set_volume(0.3)
     pygame.mixer .music.play(-1)
     win = pygame.display.set_mode((s_width, s_height))
