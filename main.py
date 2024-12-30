@@ -8,15 +8,15 @@ FIELD_COLOR = 'black'
 GRID_COLOR = 'gray'
 LINE_CLEAR_SCORE = {1: 100, 2: 300, 3: 500, 4: 800}  # 消行得分规则
 
-# 形状和颜色绑定
+# 定义方块形状和颜色绑定
 BLOCKS = [
-    {'shape': [['0000', '1111', '0000', '0000']], 'color': 'cyan'},  # I
-    {'shape': [['0110', '1110', '0000', '0000']], 'color': 'blue'},  # J
-    {'shape': [['1100', '1110', '0000', '0000']], 'color': 'orange'},  # L
-    {'shape': [['1100', '1100']], 'color': 'yellow'},  # O
-    {'shape': [['0110', '1110']], 'color': 'green'},  # S
-    {'shape': [['1100', '0110']], 'color': 'red'},  # Z
-    {'shape': [['0100', '1110', '0000', '0000']], 'color': 'purple'},  # T
+    {'shape': [['1111']], 'color': 'cyan'},  # I
+    {'shape': [['010', '111']], 'color': 'blue'},  # J
+    {'shape': [['100', '111']], 'color': 'orange'},  # L
+    {'shape': [['110', '110']], 'color': 'yellow'},  # O
+    {'shape': [['011', '110']], 'color': 'green'},  # S
+    {'shape': [['110', '011']], 'color': 'red'},  # Z
+    {'shape': [['010', '111', '000']], 'color': 'purple'},  # T
 ]
 
 class TetrisGame:
@@ -79,19 +79,15 @@ class TetrisGame:
         self.canvas.create_text(10, 10, text=f"Score: {self.score}", anchor=tk.NW, fill='white', font=('Arial', 16))
 
     def new_block(self):
-        # 从BLOCKS中随机选择形状和颜色
+        # 随机选取一个方块
         block = random.choice(BLOCKS)
         self.current_block = {
             'shape': block['shape'],
             'color': block['color'],
-            'x': WIDTH // 2 - 2,  # 使新方块的初始位置在屏幕中央
-            'y': 0,  # 初始在上方
+            'x': WIDTH // 2 - 2,
+            'y': 0,
         }
         self.next_block = random.choice(BLOCKS)
-
-        # 判断是否死亡：如果顶部位置已经有方块，则游戏结束
-        if not self.valid_move(self.current_block, 0, 0):
-            self.end_game()
 
     def fall(self):
         if not self.game_over:
@@ -123,7 +119,6 @@ class TetrisGame:
                     x = self.current_block['x'] + c
                     y = self.current_block['y'] + r
                     self.field[y][x] = BLOCKS.index({'shape': self.current_block['shape'], 'color': self.current_block['color']}) + 1
-
         self.clear_lines()
 
     def clear_lines(self):
