@@ -117,6 +117,19 @@ class TetrisGame:
         self.clear_lines()
         self.new_block()
 
+    def check_game_over(self):
+        """检查游戏是否结束"""
+        for c in range(self.width):
+            if self.field[0][c] != 0:
+                return True
+        return False
+
+    def game_over(self):
+        """游戏结束处理"""
+        self.game_over_flag = True
+        self.canvas.create_text(self.width * self.block_size / 2, self.height * self.block_size / 2,
+                                text="Game Over", fill="red", font=('Arial', 24))
+
     def clear_lines(self):
         """清除已满的行"""
         lines_to_clear = []
@@ -138,6 +151,8 @@ class TetrisGame:
         """更新界面"""
         self.canvas.delete("all")
         self.draw_grid()
+        if self.check_game_over():
+            self.game_over()
 
         # 绘制场地
         for y in range(self.height):
