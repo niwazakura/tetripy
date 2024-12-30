@@ -199,7 +199,7 @@ if __name__ == "__main__":
     # pygame.mixer_music.load("https://cdn.freesound.org/previews/779/779827_5674468-lq.mp3")
     # pygame.mixer.music.set_volume(0.3)
     # pygame.mixer .music.play(-1)
-    win = pygame.display.set_mode((s_width, s_height))
+    win = pygame.display.set_mode((WIDTH * BLOCK_SIZE, HEIGHT * BLOCK_SIZE))
     pygame.display.set_caption('Tetris')
     win. Fill((0,0,0))
     draw_text_middle(win, 'Press Any Key To Play', 60, (255,255,255))
