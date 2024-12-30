@@ -38,7 +38,14 @@ class TetrisGame:
         # 启动游戏
         self.new_block()
         self.drop_block()
+        self.root.after(500, self.game_loop)  # 启动游戏循环
         self.root.mainloop()
+
+    def game_loop(self):
+        """每隔一定时间自动下落"""
+        if not self.game_over_flag:
+            self.drop_block()
+            self.root.after(max(100, 500 - self.score // 10), self.game_loop)  # 根据分数逐渐加速
 
     def new_block(self):
         """生成新的方块"""
@@ -166,3 +173,22 @@ class TetrisGame:
             if not self.can_move(MOVE_DOWN) and not self.can_move(MOVE_LEFT) and not self.can_move(MOVE_RIGHT):
                 self.current_block['shape'] = old_shape
             self.update_display()
+
+    def drop_block(self):
+        """控制方块下落"""
+        if not self.game_over_flag:
+            if self.can_move(MOVE_DOWN):
+                self.current_block['y'] += 1
+            else:
+                self.lock_block()
+            self.update_display()
+
+    def drop_block_immediately(self):
+        """立即将方块下落到底部"""
+        while self.can_move(MOVE_DOWN):
+            self.current_block['y'] += 1
+        self.lock_block()
+        self.update_display()
+
+if __name__ == "__main__":
+    TetrisGame()
