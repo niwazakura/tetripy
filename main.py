@@ -201,7 +201,7 @@ if __name__ == "__main__":
     # pygame.mixer .music.play(-1)
     win = pygame.display.set_mode((WIDTH * BLOCK_SIZE, HEIGHT * BLOCK_SIZE))
     pygame.display.set_caption('Tetris')
-    win. Fill((0,0,0))
+    win.fill((0,0,0))
     draw_text_middle(win, 'Press Any Key To Play', 60, (255,255,255))
     pygame.display.update()
     time.sleep(2)
