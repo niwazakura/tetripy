@@ -130,7 +130,7 @@ class TetrisGame:
                 self.field.insert(0, [0] * self.width)
 
             self.score += LINE_CLEAR_SCORE[len(lines_to_clear)]
-            self.root.title("Tetris Game：SCORES: %s"  % self.score)
+            self.root.title("SCORES: %s"  % self.score)
         
         self.update_display()
 
