@@ -193,6 +193,10 @@ class TetrisGame:
         self.update_display()
 
 if __name__ == "__main__":
+    pygame.init()
+    pygame.mixer.init()
+
+
     pygame.mixer_music.load(r"C:\Users\ASUS\Desktop\Ray J - She Freaky.mp3")
     pygame.mixer.music.set_volume(0.3)
     pygame.mixer .music.play(-1)
