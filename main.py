@@ -49,11 +49,13 @@ class TetrisGame(tk.Tk):
         self.block = None  # 当前方块
         self.score = 0  # 游戏得分
         self.game_over_flag = False  # 游戏结束标志
+        self.gravity_speed = 500  # 下落速度（单位：毫秒）
+        self.hard_drop_speed = 50  # 硬降速度（单位：毫秒）
 
         # 启动游戏
         self.update_display()
         self.spawn_block()
-        self.after(500, self.drop_block)  # 每500毫秒下落一次
+        self.after(self.gravity_speed, self.drop_block)  # 每500毫秒下落一次
 
     def spawn_block(self):
         """生成一个新的方块"""
@@ -62,7 +64,7 @@ class TetrisGame(tk.Tk):
         self.block['y'] = 0
 
     def drop_block(self):
-        """控制方块的下落"""
+        """控制方块的自动下落"""
         if not self.game_over_flag:
             if not self.move_block(MOVE_DOWN):
                 self.lock_block()
@@ -72,7 +74,7 @@ class TetrisGame(tk.Tk):
                     self.game_over()
                 else:
                     self.update_display()
-                    self.after(500, self.drop_block)  # 继续下落
+            self.after(self.gravity_speed, self.drop_block)  # 继续下落
 
     def move_block(self, direction):
         """移动当前方块"""
@@ -94,6 +96,18 @@ class TetrisGame(tk.Tk):
                 self.update_display()
                 return True
         return False
+
+    def hard_drop(self):
+        """硬降：将方块迅速下落到底"""
+        while self.move_block(MOVE_DOWN):
+            pass
+        self.lock_block()
+        self.clear_lines()
+        self.spawn_block()  # 生成新的方块
+        if self.check_game_over():
+            self.game_over()
+        else:
+            self.update_display()
 
     def can_move_down(self):
         """检查方块是否可以向下移动"""
@@ -214,6 +228,8 @@ class TetrisGame(tk.Tk):
             self.rotate_block_cw()
         elif event.keysym == ROTATE_CCW:
             self.rotate_block_ccw()
+        elif event.keysym == 'space':
+            self.hard_drop()  # 按空格键硬降
 
     def rotate_block_cw(self):
         """顺时针旋转方块"""
@@ -251,4 +267,5 @@ if __name__ == "__main__":
     game.bind("<Down>", game.on_key_press)  # 加速下落
     game.bind("<Up>", game.on_key_press)  # 顺时针旋转
     game.bind("<z>", game.on_key_press)  # 逆时针旋转
+    game.bind("<space>", game.on_key_press)  # 空格键硬降
     game.mainloop()
