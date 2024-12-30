@@ -31,6 +31,16 @@ s_height = 700
 play_width = 300  # meaning 300 // 10 = 30 width per block
 play_height = 600  # meaning 600 // 20 = 30 height per block
 
+# Define colors for each block type
+BLOCK_COLORS = {
+    "I": "light blue",  # 淡蓝
+    "J": "dark blue",   # 深蓝
+    "L": "orange",      # 橙色
+    "O": "yellow",      # 黄色
+    "S": "green",       # 绿色
+    "Z": "red",         # 红色
+    "T": "purple"       # 紫色
+}
 
 class TetrisGame:
     def __init__(self):
@@ -47,7 +57,6 @@ class TetrisGame:
         self.field = [[0] * self.width for _ in range(self.height)]
         self.block_size = 30  # 每个方块的大小
 
-        
         # 当前方块
         self.current_block = None
         
@@ -73,16 +82,18 @@ class TetrisGame:
     def new_block(self):
         """生成新的方块"""
         shapes = [
-            [[1, 1, 1, 1]],  # I形
-            [[1, 1], [1, 1]],  # O形
-            [[0, 1, 0], [1, 1, 1]],  # T形
-            [[1, 1, 0], [0, 1, 1]],  # S形
-            [[0, 1, 1], [1, 1, 0]],  # Z形
-            [[1, 0, 0], [1, 1, 1]],  # L形
-            [[0, 0, 1], [1, 1, 1]]   # J形
+            {"shape": [[1, 1, 1, 1]], "type": "I"},  # I形
+            {"shape": [[1, 1], [1, 1]], "type": "O"},  # O形
+            {"shape": [[0, 1, 0], [1, 1, 1]], "type": "T"},  # T形
+            {"shape": [[1, 1, 0], [0, 1, 1]], "type": "S"},  # S形
+            {"shape": [[0, 1, 1], [1, 1, 0]], "type": "Z"},  # Z形
+            {"shape": [[1, 0, 0], [1, 1, 1]], "type": "L"},  # L形
+            {"shape": [[0, 0, 1], [1, 1, 1]], "type": "J"}   # J形
         ]
-        shape = random.choice(shapes)
-        color = random.choice(['red', 'blue', 'green', 'yellow', 'purple', 'cyan', 'orange'])
+        block = random.choice(shapes)
+        shape = block["shape"]
+        block_type = block["type"]
+        color = BLOCK_COLORS[block_type]  # Get the color based on the block type
         self.current_block = {
             'shape': shape,
             'color': color,
@@ -233,7 +244,7 @@ if __name__ == "__main__":
     pygame.init()
     pygame.font.init()
     # pygame.mixer.init()
-    # pygame.mixer_music.load("https://cdn.freesound.org/previews/779/779827_5674468-lq.mp3")
+    # pygame.mixer_music.load("https://cdn.freesound.org/previews/779/779827_5674468-lq.mp3&#34;)  
     # pygame.mixer.music.set_volume(0.3)
     # pygame.mixer .music.play(-1)
     win = pygame.display.set_mode((s_width, HEIGHT * s_height))
